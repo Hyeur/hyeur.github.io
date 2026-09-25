@@ -1,0 +1,134 @@
+colorScheme = "autumn"
+defaultAppearance = "dark"
+autoSwitchAppearance = true
+enableA11y = false
+enableSearch = true
+enableCodeCopy = false
+enableStructuredBreadcrumbs = false
+replyByEmail = true
+disableImageOptimization = false
+disableImageOptimizationMD = false
+disableTextInHeader = false
+hotlinkFeatureImage = false
+fingerprintAlgorithm = "sha512"
+giteaDefaultServer = "https://git.fsfe.org"
+forgejoDefaultServer = "https://v11.next.forgejo.org"
+seo = { }
+fathomAnalytics = { }
+umamiAnalytics = { }
+selineAnalytics = { }
+buymeacoffee = { }
+verification = { }
+rssnext = { }
+advertisement = { }
+enableStyledScrollbar = true
+defaultBackgroundImage = "Sounds.jpg"
+showViews = true
+
+[firebase]
+appId = "1:635112754064:web:10c9300d859ce1ae060115"
+authDomain = "sounddesignportfolio.firebaseapp.com"
+projectId = "sounddesignportfolio"
+storageBucket = "sounddesignportfolio.firebasestorage.app"
+messagingSenderId = "635112754064"
+measurementId = "G-7YL4QYFLTK"
+apiKey = "AIzaSyD7pX-CS_9tsiEJVhOJ-Hn57u1b_g_voTE"
+
+[languageRedirect]
+enabled = false
+storageKey = "blowfish_preferred_language"
+browserRedirectHomeOnly = true
+storedLanguageRedirect = true
+
+[header]
+layout = "fixed-gradient"
+mobileMenuStyle = "fullscreen"
+
+[footer]
+showMenu = true
+showCopyright = true
+showThemeAttribution = false
+showAppearanceSwitcher = true
+showScrollToTop = true
+
+[homepage]
+layout = "profile"
+showRecent = false
+showRecentItems = 5
+showMoreLink = false
+showMoreLinkDest = "/posts/"
+cardView = false
+cardViewScreenWidth = true
+layoutBackgroundBlur = false
+disableHeroImageFilter = false
+
+[article]
+showDate = true
+showViews = false
+showLikes = false
+showDateOnlyInArticle = false
+showDateUpdated = true
+showAuthor = true
+showHero = false
+layoutBackgroundBlur = true
+layoutBackgroundHeaderSpace = true
+showBreadcrumbs = false
+showDraftLabel = true
+showEdit = false
+editAppendPath = true
+seriesOpened = false
+showHeadingAnchors = true
+showPagination = true
+invertPagination = false
+showReadingTime = true
+showReadingProgress = false
+showTableOfContents = false
+showTaxonomies = false
+showCategories = true
+showTags = true
+showCategoriesInSecondaryColor = false
+showAuthorsBadges = false
+showWordCount = true
+showZenMode = false
+
+[list]
+showHero = false
+layoutBackgroundBlur = true
+layoutBackgroundHeaderSpace = true
+showBreadcrumbs = false
+showSummary = false
+showViews = false
+showLikes = false
+showTableOfContents = false
+showCards = false
+orderByWeight = false
+groupByYear = true
+cardView = false
+cardViewScreenWidth = false
+constrainItemsWidth = false
+
+[sitemap]
+excludedKinds = [ "taxonomy", "term" ]
+
+[taxonomy]
+showTermCount = true
+showHero = false
+layoutBackgroundBlur = true
+layoutBackgroundHeaderSpace = true
+showBreadcrumbs = false
+showViews = false
+showLikes = false
+showTableOfContents = false
+cardView = false
+
+[term]
+showHero = false
+layoutBackgroundBlur = true
+layoutBackgroundHeaderSpace = true
+showBreadcrumbs = false
+showViews = false
+showLikes = false
+showTableOfContents = true
+groupByYear = false
+cardView = false
+cardViewScreenWidth = false

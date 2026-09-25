@@ -1,0 +1,50 @@
+[[main]]
+none = "none"
+
+[[main]]
+name = "Home"
+pre = "microsoft"
+pageRef = "home"
+identifier = "smyOkiDyRo"
+weight = 1
+
+[[main]]
+name = "Reel"
+pageRef = "reel"
+identifier = "BYluwpJKHD"
+weight = 2
+
+[[main]]
+name = "Credits"
+pageRef = "credits"
+identifier = "ke6DDezdpP"
+weight = 3
+
+[[main]]
+name = "Bio"
+pageRef = "bio"
+identifier = "z2WY58odho"
+weight = 4
+
+[[main]]
+name = "Contact"
+pageRef = "contact"
+identifier = "9OOEOmNkn1"
+weight = 5
+
+[[main]]
+name = "Sound Portfolio"
+pre = "music"
+pageRef = "portfolio"
+identifier = "NwHOyd4V8v"
+weight = 6
+
+[[main]]
+name = "Blog"
+pre = "blogger"
+pageRef = "blog"
+identifier = "vOWPc0O3VM"
+weight = 7
+
+[[footer]]
+none = "none"

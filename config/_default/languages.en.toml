@@ -1,0 +1,17 @@
+disabled = false
+locale = "en"
+label = "English"
+weight = 1
+title = "Hieu Nguyen Ngoc"
+
+[params]
+displayName = "EN"
+isoCode = "en"
+rtl = false
+dateFormat = "2 January 2006"
+logo = "HNLogo.png"
+secondaryLogo = "HNThumb.png"
+
+["params.author"]
+name = "Hieu Nguyen Ngoc"
+email = "hieuzzai9@gmail.com"
