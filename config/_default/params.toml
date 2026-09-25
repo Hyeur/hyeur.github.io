@@ -18,12 +18,14 @@ fathomAnalytics = { }
 umamiAnalytics = { }
 selineAnalytics = { }
 buymeacoffee = { }
-verification = { }
 rssnext = { }
 advertisement = { }
 enableStyledScrollbar = true
 defaultBackgroundImage = "Sounds.jpg"
 showViews = true
+
+[verification]
+google = '<meta name="google-site-verification" content="x5ABFZHftRvK4-zER5tA2_tFL_0lba6j87iMFwHWCy0" />'
 
 [firebase]
 appId = "1:635112754064:web:10c9300d859ce1ae060115"
