@@ -6,7 +6,12 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    match /entries/{entryId} { allow read, write: if isOwner(); }
+    match /entries/{entryId} {
+      allow read: if isOwner();
+      allow create: if isOwner() && request.resource.data.status == "draft";
+      allow update: if isOwner() && request.resource.data.status == resource.data.status;
+      allow delete: if isOwner();
+    }
     match /{document=**} {
       // This rule allows anyone with your database reference to view, edit,
       // and delete all data in your database. It is useful for getting
