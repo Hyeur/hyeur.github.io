@@ -4,7 +4,7 @@ Public static portfolio: https://sounddesignportfolio.web.app/
 
 ## Local preview
 
-Run `npm ci` and `npx hugo server` from the repository root, then open the local URL printed by Hugo.
+Run `npm ci` and `npx hugo server` from the repository root, then open the local URL printed by Hugo. To build the static site, use `npm run build:site`.
 
 ## Site structure
 
@@ -15,8 +15,8 @@ Run `npm ci` and `npx hugo server` from the repository root, then open the local
 
 ## Updating portfolio content
 
-1. Use the private `/admin/` editor to create an English and Vietnamese entry and save it as a draft.
-2. Add approved YouTube or SoundCloud share URLs and preview the embeds.
-3. Publish from the editor; GitHub Actions builds Hugo and deploys the generated `public/` directory to Firebase Hosting.
-4. Use generic, external-audience wording and do not include unapproved employer or client details.
-5. Follow [docs/maintenance-plan.md](docs/maintenance-plan.md) before publishing.
+1. Sign in at `/admin/` using the Firebase Authentication owner account. Firestore access requires the `admin: true` custom claim; see [docs/content-model.md](docs/content-model.md) for owner setup.
+2. Create an English and Vietnamese entry and save it as a draft. Add approved YouTube or SoundCloud share URLs.
+3. Run `npm run export:content` with Firebase Admin credentials, then build Hugo. The export includes only published entries.
+4. Firebase Hosting serves the generated `public/` directory. Configure deployment credentials in GitHub Actions before enabling automated releases.
+5. Use generic, external-audience wording and follow [docs/maintenance-plan.md](docs/maintenance-plan.md) before publishing.
