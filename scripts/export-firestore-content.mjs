@@ -10,12 +10,12 @@ const managedRoot = path.join(root, "content");
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || "sounddesignportfolio";
 if (process.env.FIRESTORE_EMULATOR_HOST) initializeApp({ projectId });
 else initializeApp({ credential: applicationDefault(), projectId });
-const snapshot = await getFirestore().collection("entries").where("status", "==", "published").get();
-const entries = snapshot.docs.map((doc) => validateEntry(doc.data(), doc.id));
+const snapshot = await getFirestore().collection("entries").get();
+const allEntries = snapshot.docs.map((doc) => validateEntry(doc.data(), doc.id));
 const seen = new Set();
-for (const entry of entries) {
+for (const entry of allEntries) {
   const key = `${entry.type}/${entry.slug}`;
-  if (seen.has(key)) throw new Error(`Duplicate published entry slug: ${key}`);
+  if (seen.has(key)) throw new Error(`Duplicate entry slug: ${key}`);
   seen.add(key);
   const section = ENTRY_TYPES[entry.type];
   try {
@@ -24,6 +24,7 @@ for (const entry of entries) {
     if (error.code !== "ENOENT") throw error;
   }
 }
+const entries = allEntries.filter((entry) => entry.status === "published");
 function page(entry, lang, section) {
   const values = { title: entry[lang].title, description: entry[lang].summary || "", date: toDate(entry.updatedAt).toISOString(), lastmod: toDate(entry.updatedAt).toISOString(), url: lang === "en" ? `/${section}/${entry.slug}/` : `/vi/${section}/${entry.slug}/`, slug: entry.slug, type: section, draft: false, tags: entry.tags || [], year: entry.year, role: entry.role, category: entry.category, youtubeUrl: entry.youtubeUrl, soundcloudUrl: entry.soundcloudUrl };
   const lines = ["---"];
