@@ -49,6 +49,8 @@ build/Release
 
 # Dependency directories
 node_modules/
+admin/*.tsbuildinfo
+/public/admin/
 
 # Optional npm cache directory
 .npm
