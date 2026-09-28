@@ -19,8 +19,14 @@ export function validateEntry(entry, id = "(unknown)") {
     try { const url = new URL(entry[key]); need(url.protocol === "https:" && hosts[key].includes(url.hostname), `${key} must be HTTPS on a supported host`); }
     catch { errors.push(`${key} must be a valid URL`); }
   }
-  need(Boolean(entry.createdAt), "createdAt is required");
-  need(Boolean(entry.updatedAt), "updatedAt is required");
+  for (const key of ["createdAt", "updatedAt"]) {
+    try { if (!entry[key]) throw new Error("missing"); toDate(entry[key]); }
+    catch { errors.push(`${key} must be a valid date or Firestore timestamp`); }
+  }
+  for (const lang of ["en", "vi"]) if (entry[lang] && typeof entry[lang] === "object") {
+    if (entry[lang].summary !== undefined) need(typeof entry[lang].summary === "string", `${lang}.summary must be text`);
+  }
+  if (entry.tags !== undefined) need(Array.isArray(entry.tags) && entry.tags.every((tag) => typeof tag === "string"), "tags must be a list of text values");
   if (entry.type === "credit") need(typeof entry.role === "string" && entry.role.trim(), "role is required for credits");
   if (["portfolio", "project"].includes(entry.type)) need(Number.isInteger(entry.year), "year is required for portfolio and project entries");
   if (errors.length) throw new Error(`Entry ${id}: ${errors.join("; ")}`);
