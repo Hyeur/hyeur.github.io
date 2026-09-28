@@ -1,5 +1,15 @@
 {
+  "scripts": {
+    "build": "npm run export:content && hugo --minify",
+    "export:content": "node scripts/export-firestore-content.mjs",
+    "build:site": "hugo --minify",
+    "set:owner-claim": "node scripts/assign-owner-claim.mjs"
+  },
   "devDependencies": {
     "hugo-extended": "^0.166.0"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.5.0"
   }
 }
