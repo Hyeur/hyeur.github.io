@@ -1,6 +1,6 @@
 [[main]]
-name = "Home"
-url = "/"
+name = "Trang chủ"
+url = "/vi/"
 weight = 1
 
 [[main]]
@@ -9,17 +9,17 @@ pageRef = "reel"
 weight = 2
 
 [[main]]
-name = "Credits"
+name = "Tín chỉ"
 pageRef = "credits"
 weight = 3
 
 [[main]]
-name = "Portfolio"
+name = "Portfolio âm thanh"
 pageRef = "portfolio"
 weight = 4
 
 [[main]]
-name = "Personal Projects"
+name = "Dự án cá nhân"
 pageRef = "projects"
 weight = 5
 
@@ -29,14 +29,11 @@ pageRef = "blog"
 weight = 6
 
 [[main]]
-name = "Bio"
+name = "Giới thiệu"
 pageRef = "bio"
 weight = 7
 
 [[main]]
-name = "Contact"
+name = "Liên hệ"
 pageRef = "contact"
 weight = 8
-
-[[footer]]
-none = "none"

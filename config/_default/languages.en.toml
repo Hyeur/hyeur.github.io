@@ -2,7 +2,8 @@ disabled = false
 locale = "en"
 label = "English"
 weight = 1
-title = "Hieu Nguyen Ngoc"
+title = "Hieu Nguyen Ngoc — Sound Designer"
+description = "Sound design and technical audio portfolio by Hieu Nguyen Ngoc."
 
 [params]
 displayName = "EN"
@@ -12,6 +13,7 @@ dateFormat = "2 January 2006"
 logo = "HNLogo.png"
 secondaryLogo = "HNThumb.png"
 
-["params.author"]
+[params.author]
 name = "Hieu Nguyen Ngoc"
 email = "hieuzzai9@gmail.com"
+headline = "Sound Designer · Technical Audio"

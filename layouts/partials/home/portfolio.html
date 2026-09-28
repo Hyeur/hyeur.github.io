@@ -1,0 +1,111 @@
+<div class="portfolio-home">
+  <section class="portfolio-home__hero">
+    <div class="portfolio-home__hero-copy">
+      <p class="portfolio-home__eyebrow">{{ if eq .Site.Language.Lang "vi" }}Âm thanh tương tác · Thiết kế âm thanh{{ else }}Interactive Audio · Sound Design{{ end }}</p>
+      <h1>{{ .Title }}</h1>
+      <div class="portfolio-home__intro prose dark:prose-invert">{{ .Content }}</div>
+      <div class="portfolio-home__actions">
+        <a class="portfolio-home__button" href="{{ "portfolio/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Xem portfolio{{ else }}Explore the portfolio{{ end }}</a>
+        <a class="portfolio-home__text-link" href="{{ "contact/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Liên hệ{{ else }}Get in touch{{ end }} <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+    <aside class="portfolio-home__role">
+      <span class="portfolio-home__eyebrow">{{ if eq .Site.Language.Lang "vi" }}Vai trò{{ else }}Role{{ end }}</span>
+      <h2>Sound Designer<br>Technical Sound Designer</h2>
+      <p>{{ if eq .Site.Language.Lang "vi" }}Thiết kế sáng tạo, triển khai Unreal Engine, trộn âm và gỡ lỗi audio.{{ else }}Creative sound design, Unreal Engine implementation, mixing, and audio debugging.{{ end }}</p>
+    </aside>
+  </section>
+
+  <section class="portfolio-home__section" aria-labelledby="reel-heading">
+    <div class="portfolio-home__section-heading">
+      <div><p class="portfolio-home__eyebrow">01 / {{ if eq .Site.Language.Lang "vi" }}Reel{{ else }}Reel{{ end }}</p><h2 id="reel-heading">{{ if eq .Site.Language.Lang "vi" }}Âm thanh trong chuyển động{{ else }}Sound in motion{{ end }}</h2></div>
+      <a class="portfolio-home__text-link" href="{{ "reel/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Xem reel{{ else }}View reel{{ end }} <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="portfolio-home__feature-video">
+      {{ $videoTitle := "Abstract listening guide" }}
+      {{ if eq .Site.Language.Lang "vi" }}{{ $videoTitle = "Hướng dẫn lắng nghe trừu tượng" }}{{ end }}
+      {{ partial "video-player.html" (dict "src" "/video/listening-guide.mp4" "title" $videoTitle) }}
+      <p>{{ if eq .Site.Language.Lang "vi" }}Hình ảnh trừu tượng đồng hành cùng phần nghe, không phải cảnh quay gameplay.{{ else }}An abstract visual companion for listening, not gameplay footage.{{ end }}</p>
+    </div>
+  </section>
+
+  <section class="portfolio-home__section" aria-labelledby="sound-heading">
+    <div class="portfolio-home__section-heading">
+      <div><p class="portfolio-home__eyebrow">02 / {{ if eq .Site.Language.Lang "vi" }}Mẫu âm thanh{{ else }}Sound samples{{ end }}</p><h2 id="sound-heading">{{ if eq .Site.Language.Lang "vi" }}Nghe chi tiết{{ else }}Listen closer{{ end }}</h2></div>
+      <a class="portfolio-home__text-link" href="https://soundcloud.com/hyeurxx/tracks" target="_blank" rel="noopener noreferrer">SoundCloud <span aria-hidden="true">↗</span></a>
+    </div>
+    {{ $samples := slice
+      (dict "file" "combat-feedback.wav" "en" "Combat feedback" "vi" "Phản hồi chiến đấu")
+      (dict "file" "interaction-ui.wav" "en" "Interaction detail" "vi" "Chi tiết tương tác")
+      (dict "file" "world-ambience.wav" "en" "World ambience" "vi" "Không gian thế giới")
+      (dict "file" "system-texture.wav" "en" "System texture" "vi" "Chất liệu hệ thống")
+      (dict "file" "heavy-impact.wav" "en" "Heavy impact" "vi" "Tác động mạnh")
+      (dict "file" "energy-texture.wav" "en" "Energy texture" "vi" "Chất liệu năng lượng")
+      (dict "file" "movement-detail.wav" "en" "Movement detail" "vi" "Chi tiết chuyển động")
+      (dict "file" "cinematic-transition.wav" "en" "Cinematic transition" "vi" "Chuyển cảnh điện ảnh")
+    }}
+    <div class="portfolio-home__sample-grid">
+      {{ range $samples }}
+        {{ $label := .en }}{{ if eq $.Site.Language.Lang "vi" }}{{ $label = .vi }}{{ end }}
+        <article class="portfolio-home__sample"><h3>{{ $label }}</h3><audio controls preload="none" aria-label="{{ $label }}"><source src="/audio/{{ .file }}" type="audio/wav">{{ if eq $.Site.Language.Lang "vi" }}Trình duyệt không hỗ trợ phát audio.{{ else }}Your browser does not support audio playback.{{ end }}</audio></article>
+      {{ end }}
+    </div>
+    <p class="portfolio-home__note">{{ if eq .Site.Language.Lang "vi" }}Các mẫu hiện có sẽ được thay bằng player SoundCloud sau khi liên kết kênh được thêm qua trình biên tập.{{ else }}Current samples will use SoundCloud players once channel links are added through the editor.{{ end }}</p>
+  </section>
+
+  {{ $work := where .Site.RegularPages "Section" "portfolio" }}
+  {{ if $work }}
+    <section class="portfolio-home__section" aria-labelledby="work-heading">
+      <div class="portfolio-home__section-heading">
+        <div><p class="portfolio-home__eyebrow">03 / {{ if eq .Site.Language.Lang "vi" }}Tác phẩm{{ else }}Selected work{{ end }}</p><h2 id="work-heading">{{ if eq .Site.Language.Lang "vi" }}Một số bài thực hành{{ else }}Selected practice{{ end }}</h2></div>
+        <a class="portfolio-home__text-link" href="{{ "portfolio/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Tất cả tác phẩm{{ else }}All work{{ end }} <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="portfolio-home__work-grid">
+        {{ range first 3 (sort $work "Weight") }}
+          <a class="portfolio-home__work-card" href="{{ .RelPermalink }}">
+            <span class="portfolio-home__card-number">{{ printf "%02d" .Weight }}</span>
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Summary }}</p>
+            <span class="portfolio-home__card-link">{{ if eq $.Site.Language.Lang "vi" }}Xem dự án{{ else }}View project{{ end }} <span aria-hidden="true">↗</span></span>
+          </a>
+        {{ end }}
+      </div>
+    </section>
+  {{ end }}
+
+  {{ $projects := where .Site.RegularPages "Section" "projects" }}
+  <section class="portfolio-home__section" aria-labelledby="projects-heading">
+    <div class="portfolio-home__section-heading">
+      <div><p class="portfolio-home__eyebrow">04 / {{ if eq .Site.Language.Lang "vi" }}Dự án cá nhân{{ else }}Personal projects{{ end }}</p><h2 id="projects-heading">{{ if eq .Site.Language.Lang "vi" }}Thử nghiệm độc lập{{ else }}Independent experiments{{ end }}</h2></div>
+      <a class="portfolio-home__text-link" href="{{ "projects/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Tất cả dự án{{ else }}All projects{{ end }} <span aria-hidden="true">↗</span></a>
+    </div>
+    {{ if $projects }}
+      <div class="portfolio-home__work-grid">
+        {{ range first 3 (sort $projects "Weight") }}
+          <a class="portfolio-home__work-card" href="{{ .RelPermalink }}"><span class="portfolio-home__card-number">{{ printf "%02d" .Weight }}</span><h3>{{ .Title }}</h3><p>{{ .Summary }}</p><span class="portfolio-home__card-link">{{ if eq $.Site.Language.Lang "vi" }}Xem dự án{{ else }}View project{{ end }} ↗</span></a>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="portfolio-home__note">{{ if eq .Site.Language.Lang "vi" }}Nghiên cứu và thử nghiệm âm thanh do cá nhân thực hiện sẽ được tập hợp tại đây.{{ else }}Self-directed sound studies and experiments will be collected here.{{ end }}</p>
+    {{ end }}
+  </section>
+
+  {{ $posts := where .Site.RegularPages "Section" "blog" }}
+  <section class="portfolio-home__section" aria-labelledby="blog-heading">
+    <div class="portfolio-home__section-heading">
+      <div><p class="portfolio-home__eyebrow">05 / Blog</p><h2 id="blog-heading">{{ if eq .Site.Language.Lang "vi" }}Ghi chú từ quá trình{{ else }}Notes from the process{{ end }}</h2></div>
+      <a class="portfolio-home__text-link" href="{{ "blog/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Tất cả bài viết{{ else }}All articles{{ end }} <span aria-hidden="true">↗</span></a>
+    </div>
+    {{ if $posts }}
+      <div class="portfolio-home__work-grid">
+        {{ range first 3 (sort $posts "Date" "desc") }}
+          <a class="portfolio-home__work-card" href="{{ .RelPermalink }}"><span class="portfolio-home__card-number">{{ .Date.Format "2 Jan 2006" }}</span><h3>{{ .Title }}</h3><p>{{ .Summary }}</p><span class="portfolio-home__card-link">{{ if eq $.Site.Language.Lang "vi" }}Đọc bài{{ else }}Read article{{ end }} ↗</span></a>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="portfolio-home__note">{{ if eq .Site.Language.Lang "vi" }}Ghi chú về sound design, triển khai game audio và quy trình sáng tạo sẽ xuất hiện tại đây.{{ else }}Notes on sound design, game audio implementation, and creative workflows will appear here.{{ end }}</p>
+    {{ end }}
+  </section>
+
+  <section class="portfolio-home__contact"><div><p class="portfolio-home__eyebrow">{{ if eq .Site.Language.Lang "vi" }}Cùng tạo nên điều đáng nghe{{ else }}Let’s make sound matter{{ end }}</p><h2>{{ if eq .Site.Language.Lang "vi" }}Bắt đầu một cuộc trò chuyện.{{ else }}Start a conversation.{{ end }}</h2></div><a class="portfolio-home__button" href="{{ "contact/" | relLangURL }}">{{ if eq .Site.Language.Lang "vi" }}Liên hệ{{ else }}Contact{{ end }} <span aria-hidden="true">↗</span></a></section>
+</div>

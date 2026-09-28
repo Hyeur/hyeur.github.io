@@ -1,0 +1,7 @@
+[[mounts]]
+source = "audio"
+target = "static/audio"
+
+[[mounts]]
+source = "video"
+target = "static/video"

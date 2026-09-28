@@ -1,0 +1,6 @@
+{{- $src := .Get "src" -}}
+{{- $title := .Get "title" -}}
+{{- if or (not $title) (not (hasPrefix $src "video/")) (strings.Contains $src "..") -}}
+  {{- errorf "local-video shortcode requires a title and a path under video/: %s" .Position -}}
+{{- end -}}
+{{- partial "video-player.html" (dict "src" (printf "/%s" $src) "title" $title) -}}

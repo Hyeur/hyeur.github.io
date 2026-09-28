@@ -1,11 +1,13 @@
 theme = "blowfish"
 defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
 enableRobotsTXT = true
 summaryLength = 0
 buildDrafts = false
 buildFuture = false
 enableEmoji = true
-baseURL = ""
+baseURL = "https://sounddesignportfolio.web.app/"
+staticDir = "static"
 
 [pagination]
 pagerSize = 100

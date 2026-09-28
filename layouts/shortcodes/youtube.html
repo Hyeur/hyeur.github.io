@@ -1,0 +1,29 @@
+{{- $raw := .Get "src" | strings.TrimSpace -}}
+{{- $title := .Get "title" -}}
+{{- $id := $raw -}}
+{{- if strings.Contains $raw "://" -}}
+  {{- $parsed := urls.Parse $raw -}}
+  {{- $host := strings.TrimPrefix "www." (lower $parsed.Host) -}}
+  {{- if eq $host "youtu.be" -}}
+    {{- $id = strings.Trim $parsed.Path "/" -}}
+  {{- else if eq $host "youtube.com" -}}
+    {{- $path := strings.Trim $parsed.Path "/" -}}
+    {{- if hasPrefix $path "watch" -}}
+      {{- range (split $parsed.RawQuery "&") -}}
+        {{- $pair := split . "=" -}}
+        {{- if and (ge (len $pair) 2) (eq (index $pair 0) "v") -}}{{- $id = index $pair 1 -}}{{- end -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $segments := split $path "/" -}}
+      {{- if and (ge (len $segments) 2) (in (slice "embed" "shorts" "live") (index $segments 0)) -}}{{- $id = index $segments 1 -}}{{- end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- errorf "youtube shortcode only accepts youtube.com and youtu.be URLs: %s" .Position -}}
+  {{- end -}}
+{{- end -}}
+{{- if or (not $title) (not (findRE "^[A-Za-z0-9_-]{11}$" $id)) -}}
+  {{- errorf "youtube shortcode requires a valid video ID and accessible title: %s" .Position -}}
+{{- end -}}
+<div class="portfolio-embed portfolio-embed--video">
+  <iframe src="https://www.youtube-nocookie.com/embed/{{ $id }}?autoplay=0&amp;rel=0" title="{{ $title }}" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>

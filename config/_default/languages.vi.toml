@@ -1,0 +1,19 @@
+disabled = false
+locale = "vi"
+label = "Tiếng Việt"
+weight = 2
+title = "Nguyễn Ngọc Hiếu — Sound Designer"
+description = "Portfolio Sound Design và Technical Audio của Nguyễn Ngọc Hiếu."
+
+[params]
+displayName = "VI"
+isoCode = "vi"
+rtl = false
+dateFormat = "2 January 2006"
+logo = "HNLogo.png"
+secondaryLogo = "HNThumb.png"
+
+[params.author]
+name = "Nguyễn Ngọc Hiếu"
+email = "hieuzzai9@gmail.com"
+headline = "Sound Designer · Technical Audio"

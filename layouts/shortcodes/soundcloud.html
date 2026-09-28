@@ -1,0 +1,11 @@
+{{- $src := .Get "src" | strings.TrimSpace -}}
+{{- $title := .Get "title" -}}
+{{- $parsed := urls.Parse $src -}}
+{{- $host := lower $parsed.Host -}}
+{{- if or (not $title) (ne $parsed.Scheme "https") (not (in (slice "soundcloud.com" "www.soundcloud.com") $host)) -}}
+  {{- errorf "soundcloud shortcode requires a SoundCloud HTTPS URL and accessible title: %s" .Position -}}
+{{- end -}}
+<div class="portfolio-embed portfolio-embed--audio">
+  <iframe src="https://w.soundcloud.com/player/?url={{ $src | urlquery }}&amp;color=%23d16d4d&amp;auto_play=false&amp;hide_related=true&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false&amp;visual=false" title="{{ $title }}" loading="lazy" allow="autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<p class="portfolio-embed__fallback"><a href="{{ $src }}" target="_blank" rel="noopener noreferrer">{{ if eq .Page.Site.Language.Lang "vi" }}Mở âm thanh trên SoundCloud{{ else }}Open audio on SoundCloud{{ end }} ↗</a></p>
