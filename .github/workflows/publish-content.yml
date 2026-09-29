@@ -1,7 +1,10 @@
 name: Publish portfolio content
 on:
-  repository_dispatch:
-    types: [publish-content]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '7,17,27,37,47,57 * * * *'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -24,34 +27,30 @@ jobs:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO }}'
       - run: npm ci
       - run: npm ci --prefix admin
-      - name: Export published Firestore entries
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+      - name: Export published Firestore entries and release manifest
         run: npm run export:content
         env:
           FIREBASE_PROJECT_ID: sounddesignportfolio
-          PUBLISH_REQUEST_ID: ${{ github.event.client_payload.requestId }}
+          PUBLISH_MANIFEST_PATH: ${{ runner.temp }}/release-manifest.json
       - name: Build Hugo site
         run: npm run build:site
       - name: Build custom editor
         run: npm --prefix admin run build
-      - name: Verify the requested content revision is still current
-        run: node scripts/verify-publish-revision.mjs "$ENTRY_ID" "$REVISION" "$ACTION" "$REQUEST_ID"
+      - name: Compare release with last successful deployment
+        id: release
+        run: node scripts/publisher-state.mjs check
         env:
           FIREBASE_PROJECT_ID: sounddesignportfolio
-          ENTRY_ID: ${{ github.event.client_payload.entryId }}
-          REVISION: ${{ github.event.client_payload.revision }}
-          ACTION: ${{ github.event.client_payload.action }}
-          REQUEST_ID: ${{ github.event.client_payload.requestId }}
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools
+          PUBLISH_MANIFEST_PATH: ${{ runner.temp }}/release-manifest.json
       - name: Deploy Firebase Hosting
+        id: deploy
+        if: steps.release.outputs.changed == 'true'
         run: firebase deploy --only hosting --project sounddesignportfolio --non-interactive
-      - name: Record publish result and release build lock
-        if: always() && steps.auth.outcome == 'success'
-        run: node scripts/update-publish-status.mjs "$ENTRY_ID" "$JOB_RESULT" "$REVISION" "$REQUEST_ID" "$RUN_URL"
+      - name: Record successful deployment state
+        if: success() && steps.deploy.outcome == 'success'
+        run: node scripts/publisher-state.mjs record
         env:
           FIREBASE_PROJECT_ID: sounddesignportfolio
-          ENTRY_ID: ${{ github.event.client_payload.entryId }}
-          REVISION: ${{ github.event.client_payload.revision }}
-          REQUEST_ID: ${{ github.event.client_payload.requestId }}
-          JOB_RESULT: ${{ job.status }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PUBLISH_MANIFEST_PATH: ${{ runner.temp }}/release-manifest.json

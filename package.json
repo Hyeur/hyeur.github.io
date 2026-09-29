@@ -1,9 +1,10 @@
 {
   "scripts": {
-    "build": "npm run export:content && hugo --minify && npm --prefix admin run build",
+    "build": "npm run export:content && hugo --minify --destination .superpowers/build/site && npm --prefix admin run build -- --outDir ../.superpowers/build/admin",
     "export:content": "node scripts/export-firestore-content.mjs",
     "build:site": "hugo --minify",
     "test:release-manifest": "node --test scripts/release-manifest.test.mjs",
+    "test:publisher-state": "node --test scripts/publisher-state.test.mjs",
     "set:owner-claim": "node scripts/assign-owner-claim.mjs"
   },
   "devDependencies": {

@@ -93,13 +93,13 @@
 - `recordSuccessfulDeployment(db, manifest)` replaces the fingerprint and deployed entry map only after Hosting deploy succeeds.
 - GitHub Actions sets `PUBLISH_MANIFEST_PATH` under `$RUNNER_TEMP`; comparison and record steps consume the same manifest.
 
-- [ ] **Step 1: Write failing state-helper tests** for missing state, equal/different fingerprints, and correct deployed-map replacement.
-- [ ] **Step 2: Run `node --test scripts/publisher-state.test.mjs`** and confirm expected failures before the helper exists.
-- [ ] **Step 3: Implement publisher-state helpers** with Firebase Admin and a narrow injected Firestore document reference for testability.
-- [ ] **Step 4: Add workflow triggers** for pushes to `main`, cron `7,17,27,37,47,57 * * * *`, and `workflow_dispatch`; retain non-canceling publish concurrency.
-- [ ] **Step 5: Order workflow steps** as authenticate, install, Firestore export/manifest, Hugo build, admin build, compare state, conditional Hosting deploy, and conditional state update guarded by successful Hosting deployment. A failed earlier step must not deploy or change state.
-- [ ] **Step 6: Use only the existing `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` secret** for Firestore export/state and Hosting deploy; remove request payload environment variables and repository-dispatch assumptions.
-- [ ] **Step 7: Run state tests, inspect the workflow trigger/step order, and run local Hugo/admin builds to ignored `.superpowers/` destinations.** Expected: unchanged fingerprints skip deploy; changed content or commit deploys; local checks leave modified `public/` files untouched.
+- [x] **Step 1: Write failing state-helper tests** for missing state, equal/different fingerprints, and correct deployed-map replacement.
+- [x] **Step 2: Run `node --test scripts/publisher-state.test.mjs`** and confirm expected failures before the helper exists.
+- [x] **Step 3: Implement publisher-state helpers** with Firebase Admin and a narrow injected Firestore document reference for testability.
+- [x] **Step 4: Add workflow triggers** for pushes to `main`, cron `7,17,27,37,47,57 * * * *`, and `workflow_dispatch`; retain non-canceling publish concurrency.
+- [x] **Step 5: Order workflow steps** as authenticate, install, Firestore export/manifest, Hugo build, admin build, compare state, conditional Hosting deploy, and conditional state update guarded by successful Hosting deployment. A failed earlier step must not deploy or change state.
+- [x] **Step 6: Use only the existing `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` secret** for Firestore export/state and Hosting deploy; remove request payload environment variables and repository-dispatch assumptions.
+- [x] **Step 7: Run state tests, inspect the workflow trigger/step order, and run local Hugo/admin builds to ignored `.superpowers/` destinations.** Expected: unchanged fingerprints skip deploy; changed content or commit deploys; local checks leave modified `public/` files untouched.
 - [ ] **Step 8: Commit** as `feat: deploy firestore content on scheduled workflow`.
 
 ### Task 4: Remove Functions publishing and update operations docs
