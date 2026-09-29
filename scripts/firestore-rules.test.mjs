@@ -51,3 +51,14 @@ test("deleting a draft waits until it is absent from the last deployed map", asy
   await env.withSecurityRulesDisabled((ctx) => updateDoc(doc(ctx.firestore(), "_publisherState/current"), { publishedEntryRevisions: {} }));
   await assertSucceeds(deleteDoc(doc(owner, "entries/live")));
 });
+
+test("deletion is blocked during an active publisher lease even before the first deployment", async () => {
+  const owner = env.authenticatedContext("owner", { admin: true }).firestore();
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), "entries/first-publish"), entry());
+    await setDoc(doc(ctx.firestore(), "_publisherState/inFlight"), { expiresAt: new Date(Date.now() + 60_000) });
+  });
+  await assertFails(deleteDoc(doc(owner, "entries/first-publish")));
+  await env.withSecurityRulesDisabled((ctx) => updateDoc(doc(ctx.firestore(), "_publisherState/inFlight"), { expiresAt: new Date(Date.now() - 60_000) }));
+  await assertSucceeds(deleteDoc(doc(owner, "entries/first-publish")));
+});

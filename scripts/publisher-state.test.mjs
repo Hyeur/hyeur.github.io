@@ -1,12 +1,24 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readPublisherState, recordSuccessfulDeployment } from "./publisher-state.mjs";
+import { beginPublisherRun, clearPublisherRun, readPublisherState, recordSuccessfulDeployment } from "./publisher-state.mjs";
 import { releaseChanged } from "./release-manifest.mjs";
 
 function fakeDb(initial) {
-  const state = { value: initial };
-  const ref = { get: async () => ({ exists: state.value !== undefined, data: () => state.value }), set: async (value) => { state.value = structuredClone(value); } };
-  return { collection: (name) => { assert.equal(name, "_publisherState"); return { doc: (id) => { assert.equal(id, "current"); return ref; } }; }, state };
+  const docs = new Map(initial === undefined ? [] : [["current", structuredClone(initial)]]);
+  return {
+    collection: (name) => {
+      assert.equal(name, "_publisherState");
+      return { doc: (id) => {
+        assert.ok(["current", "inFlight"].includes(id));
+        return {
+          get: async () => ({ exists: docs.has(id), data: () => docs.get(id) }),
+          set: async (value) => { docs.set(id, structuredClone(value)); },
+          delete: async () => { docs.delete(id); },
+        };
+      } };
+    },
+    state: { docs, get value() { return docs.get("current"); } },
+  };
 }
 
 test("missing publisher state reads as an empty deployment", async () => {
@@ -26,4 +38,15 @@ test("successful deployment replaces the prior fingerprint and deployed entry ma
   const manifest = { fingerprint: "new", publishedEntryRevisions: { current: 4 } };
   await recordSuccessfulDeployment(db, manifest);
   assert.deepEqual(db.state.value, manifest);
+});
+
+test("publisher run creates an expiring deletion lease and can clear it", async () => {
+  const db = fakeDb(undefined);
+  const now = new Date("2026-09-29T00:00:00.000Z");
+  await beginPublisherRun(db, now);
+  const lease = db.state.docs.get("inFlight");
+  assert.equal(lease.startedAt.valueOf(), now.valueOf());
+  assert.equal(lease.expiresAt.valueOf() - now.valueOf(), 45 * 60 * 1000);
+  await clearPublisherRun(db);
+  assert.equal(db.state.docs.has("inFlight"), false);
 });

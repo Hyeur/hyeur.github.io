@@ -10,6 +10,11 @@ service cloud.firestore {
       return exists(publisherState)
         && get(publisherState).data.get("publishedEntryRevisions", {}).keys().hasAny([entryId]);
     }
+    function isPublisherRunning() {
+      let publisherLock = /databases/$(database)/documents/_publisherState/inFlight;
+      return exists(publisherLock)
+        && get(publisherLock).data.get("expiresAt", request.time) > request.time;
+    }
 
     match /entries/{entryId} {
       allow read: if isOwner();
@@ -22,7 +27,8 @@ service cloud.firestore {
         && request.resource.data.get("publishedContent", null) == resource.data.get("publishedContent", null);
       allow delete: if isOwner()
         && resource.data.status == "draft"
-        && !isInLastDeployment(entryId);
+        && !isInLastDeployment(entryId)
+        && !isPublisherRunning();
     }
     match /{document=**} {
       // This rule allows anyone with your database reference to view, edit,

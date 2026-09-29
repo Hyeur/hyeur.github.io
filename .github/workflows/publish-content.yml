@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build-deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -29,6 +30,11 @@ jobs:
       - run: npm ci --prefix admin
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
+      - name: Acquire publisher deletion lock
+        id: lock
+        run: node scripts/publisher-state.mjs lock
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio
       - name: Export published Firestore entries and release manifest
         run: npm run export:content
         env:
@@ -49,8 +55,14 @@ jobs:
         if: steps.release.outputs.changed == 'true'
         run: firebase deploy --only hosting --project sounddesignportfolio --non-interactive
       - name: Record successful deployment state
+        id: record
         if: success() && steps.deploy.outcome == 'success'
         run: node scripts/publisher-state.mjs record
         env:
           FIREBASE_PROJECT_ID: sounddesignportfolio
           PUBLISH_MANIFEST_PATH: ${{ runner.temp }}/release-manifest.json
+      - name: Release publisher deletion lock
+        if: always() && steps.lock.outcome == 'success' && (steps.deploy.outcome != 'success' || steps.record.outcome == 'success')
+        run: node scripts/publisher-state.mjs unlock
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio

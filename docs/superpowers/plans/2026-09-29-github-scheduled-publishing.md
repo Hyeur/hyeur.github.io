@@ -6,6 +6,8 @@
 
 **Architecture:** The owner publishes by changing an entry's Firestore status in the editor. GitHub Actions runs on pushes to `main`, every ten minutes at offset minutes, or manually; it exports published entries and deploys Hugo plus the editor to Firebase Hosting. After a successful deploy, the workflow writes a private publisher-state document containing the release fingerprint and deployed entry revisions, which Firestore rules use to prevent deleting content until it has been removed from the live site.
 
+Final review fixes: workflow deployment is guarded to `main`, and each run acquires an expiring 45-minute Firestore lease before export. The lease also blocks deletions before the first successful deployment manifest exists, then is cleared after normal completion. If deploy succeeds but state recording fails, the lease expires and a later run reconciles the state.
+
 **Tech Stack:** Hugo 0.166.x, Blowfish, React/TypeScript, Firebase Authentication, Cloud Firestore, Firebase Admin SDK, GitHub Actions, Firebase Hosting, Node.js 22.
 
 **Spec:** `docs/superpowers/specs/2026-09-29-github-scheduled-publishing-design.md`
@@ -26,6 +28,8 @@
 
 - **Draft leakage:** draft or malformed-status entries never enter generated output; test the exporter with mixed statuses.
 - **Unpublish/delete race:** Firestore rejects deletion while an entry is still in the last successful deployment manifest; test this with the Firestore Emulator.
+- **First-deploy delete race:** Firestore rejects deletion during an active publisher lease, including before any successful deployment map exists; test active and expired leases in the Firestore Emulator.
+- **Manual dispatch ref:** production deployment is skipped unless the workflow ref is `main`; test the job guard in the workflow check.
 - **Unauthorized publication:** signed-out and non-owner clients cannot change status or read/write publisher state; test these rule cases in the emulator.
 - **Failed deployment bookkeeping:** a failed build or Hosting deploy leaves the previous fingerprint and deployed-entry map intact; test publisher-state helpers and verify workflow ordering.
 - **Repeated unchanged schedules:** an unchanged commit/content fingerprint skips Hosting deploy; test both changed and unchanged manifest results.
