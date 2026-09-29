@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const workflow = await readFile(new URL("../.github/workflows/publish-content.yml", import.meta.url), "utf8");
+const ownerWorkflow = await readFile(new URL("../.github/workflows/provision-owner.yml", import.meta.url), "utf8");
 
 test("production publishing only checks out and deploys main", () => {
   assert.match(workflow, /^\s{4}if: github\.ref == ['"]refs\/heads\/main['"]$/m);
@@ -11,6 +12,14 @@ test("production publishing only checks out and deploys main", () => {
 test("checkout includes Blowfish and the build fails if its layout is missing", () => {
   assert.match(workflow, /uses: actions\/checkout@v4\s+with:\s+submodules: recursive/);
   assert.match(workflow, /test -f themes\/blowfish\/layouts\/_default\/baseof\.html/);
+});
+
+test("owner provisioning is manual, main-only, and restricted to the repository owner", () => {
+  assert.match(ownerWorkflow, /workflow_dispatch:/);
+  assert.match(ownerWorkflow, /owner_uid:[\s\S]*required: true/);
+  assert.match(ownerWorkflow, /if: github\.actor == ['"]Hyeur['"] && github\.ref == ['"]refs\/heads\/main['"]/);
+  assert.match(ownerWorkflow, /node scripts\/assign-owner-claim\.mjs/);
+  assert.match(ownerWorkflow, /FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO/);
 });
 
 test("the deletion lease wraps export, build, deploy, and successful state recording", () => {

@@ -1,0 +1,34 @@
+name: Provision portfolio owner
+on:
+  workflow_dispatch:
+    inputs:
+      owner_uid:
+        description: Firebase Authentication UID for the owner account
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: portfolio-owner-provision
+  cancel-in-progress: false
+jobs:
+  provision-owner:
+    if: github.actor == 'Hyeur' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO }}'
+      - run: npm ci
+      - name: Assign owner claim
+        run: node scripts/assign-owner-claim.mjs
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio
+          OWNER_UID: ${{ inputs.owner_uid }}

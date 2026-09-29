@@ -6,7 +6,7 @@ The owner editor at `/admin/` reads and writes Firestore directly. The exporter 
 
 ## Owner account setup
 
-The custom editor signs in with Email/Password, configured in `firebase.json` and deployed with `firebase deploy --only auth --project sounddesignportfolio`. Create the one owner account in Firebase Authentication, then grant its Auth UID the `admin: true` custom claim with `GOOGLE_APPLICATION_CREDENTIALS=... OWNER_UID=... npm run set:owner-claim`. The Admin SDK script preserves other claims. The owner must sign out and sign back in to refresh the ID token. Access fails closed until the claim is present; other signed-in accounts cannot read or change entries.
+The custom editor signs in with Email/Password, configured in `firebase.json` and deployed with `firebase deploy --only auth --project sounddesignportfolio`. Create the one owner account in Firebase Authentication, then use **Provision portfolio owner** in the repository Actions tab to assign its Auth UID the `admin: true` custom claim. That manual workflow is restricted to `Hyeur` on `main` and uses the existing GitHub service-account secret; the Admin SDK script preserves other claims. The owner must sign out and sign back in to refresh the ID token. Access fails closed until the claim is present; other signed-in accounts cannot read or change entries.
 
 ## Scheduled publishing
 
