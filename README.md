@@ -20,6 +20,8 @@ Install dependencies with `npm ci` and `npm ci --prefix admin`. Run `npm run bui
 3. Use **Publish** or **Unpublish** to change the Firestore status. GitHub Actions checks for updates on its ten-minute schedule and publishes the next successful build. A push to `main` also starts a build, and you can start one from the repository’s Actions tab. See [docs/content-model.md](docs/content-model.md) for schedule limits and the delete-after-unpublish behavior.
 4. Use generic, external-audience wording and follow [docs/maintenance-plan.md](docs/maintenance-plan.md) before publishing. Unlisted or private-share media links are visible to anyone who can access the public page.
 
+For the complete owner workflow—including first-time account setup, bilingual entry fields, media embeds, publishing, and safe deletion—see the [Owner's Guide](docs/owner-guide.md).
+
 ## Deployment services
 
 Firebase Hosting serves the Hugo site and `/admin/`. GitHub Actions reads published Firestore entries, builds Hugo and the editor, and deploys Hosting using the existing `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` repository secret. Cloud Functions and a GitHub publishing token are not used. The production workflow and service-account setup are documented in [docs/content-model.md](docs/content-model.md).
