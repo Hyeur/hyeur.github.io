@@ -1,15 +1,16 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { defineSecret } = require("firebase-functions/params");
+const { defineSecret, defineString } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const { randomUUID } = require("node:crypto");
 
 initializeApp();
 const githubPublishToken = defineSecret("GITHUB_PUBLISH_TOKEN");
+const ownerUid = defineString("OWNER_UID");
 const allowedRepository = "Hyeur/hyeur.github.io";
 
 exports.requestPublish = onCall({ region: "asia-southeast1", secrets: [githubPublishToken] }, async (request) => {
-  if (!request.auth || request.auth.token.admin !== true) {
+  if (!request.auth || request.auth.uid !== ownerUid.value() || request.auth.token.admin !== true) {
     throw new HttpsError("permission-denied", "Owner access is required.");
   }
 
@@ -38,16 +39,21 @@ exports.requestPublish = onCall({ region: "asia-southeast1", secrets: [githubPub
       }
       throw new HttpsError("failed-precondition", "Another site build is already running. Try again when it finishes.");
     }
+    const previousRequest = entry.publishRequest;
+    const targetStatus = action === "publish" ? "published" : "draft";
+    if (previousRequest?.status === "succeeded" && previousRequest.action === action && previousRequest.revision === revision && previousRequest.deployedRevision === revision && entry.status === targetStatus) {
+      return { queued: false, succeeded: true, requestId: previousRequest.requestId };
+    }
     const expiresAt = Timestamp.fromMillis(Date.now() + 40 * 60 * 1000);
     transaction.update(ref, {
-      status: action === "publish" ? "published" : "draft",
+      status: targetStatus,
       updatedAt: FieldValue.serverTimestamp(),
       publishRequest: { status: "queued", action, revision, requestId, requestedAt: FieldValue.serverTimestamp() },
     });
     transaction.set(lockRef, { status: "queued", entryId, action, revision, requestId, expiresAt });
     return { queued: true, requestId };
   });
-  if (!reservation.queued) return { status: "queued", duplicate: true, requestId: reservation.requestId };
+  if (!reservation.queued) return { status: reservation.succeeded ? "succeeded" : "queued", duplicate: true, requestId: reservation.requestId };
 
   try {
     const response = await fetch(`https://api.github.com/repos/${allowedRepository}/dispatches`, {

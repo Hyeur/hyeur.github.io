@@ -5,12 +5,15 @@ service cloud.firestore {
     function isOwner() {
       return request.auth != null && request.auth.token.admin == true;
     }
+    function entryIsNotPublishing() {
+      return !resource.data.keys().hasAny(["publishRequest"]) || resource.data.publishRequest.status != "queued";
+    }
 
     match /entries/{entryId} {
       allow read: if isOwner();
-      allow create: if isOwner() && request.resource.data.status == "draft";
-      allow update: if isOwner() && request.resource.data.status == resource.data.status;
-      allow delete: if isOwner();
+      allow create: if isOwner() && request.resource.data.status == "draft" && !request.resource.data.keys().hasAny(["publishRequest"]);
+      allow update: if isOwner() && entryIsNotPublishing() && request.resource.data.status == resource.data.status;
+      allow delete: if isOwner() && entryIsNotPublishing();
     }
     match /{document=**} {
       // This rule allows anyone with your database reference to view, edit,
