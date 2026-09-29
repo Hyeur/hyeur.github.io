@@ -1,0 +1,56 @@
+name: Publish portfolio content
+on:
+  repository_dispatch:
+    types: [publish-content]
+permissions:
+  contents: read
+concurrency:
+  group: portfolio-hosting-publish
+  cancel-in-progress: false
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+      - run: npm ci
+      - run: npm ci --prefix admin
+      - name: Export published Firestore entries
+        run: npm run export:content
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio
+      - name: Build Hugo site
+        run: npm run build:site
+      - name: Build custom editor
+        run: npm --prefix admin run build
+      - name: Verify the requested content revision is still current
+        run: node scripts/verify-publish-revision.mjs "$ENTRY_ID" "$REVISION" "$ACTION" "$REQUEST_ID"
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio
+          ENTRY_ID: ${{ github.event.client_payload.entryId }}
+          REVISION: ${{ github.event.client_payload.revision }}
+          ACTION: ${{ github.event.client_payload.action }}
+          REQUEST_ID: ${{ github.event.client_payload.requestId }}
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+      - name: Deploy Firebase Hosting
+        run: firebase deploy --only hosting --project sounddesignportfolio --non-interactive
+      - name: Record publish result and release build lock
+        if: always() && steps.auth.outcome == 'success'
+        run: node scripts/update-publish-status.mjs "$ENTRY_ID" "$JOB_RESULT" "$REVISION" "$REQUEST_ID" "$RUN_URL"
+        env:
+          FIREBASE_PROJECT_ID: sounddesignportfolio
+          ENTRY_ID: ${{ github.event.client_payload.entryId }}
+          REVISION: ${{ github.event.client_payload.revision }}
+          REQUEST_ID: ${{ github.event.client_payload.requestId }}
+          JOB_RESULT: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "npm run export:content && hugo --minify",
+    "build": "npm run export:content && hugo --minify && npm --prefix admin run build",
     "export:content": "node scripts/export-firestore-content.mjs",
     "build:site": "hugo --minify",
     "set:owner-claim": "node scripts/assign-owner-claim.mjs"

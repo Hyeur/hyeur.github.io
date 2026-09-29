@@ -26,7 +26,7 @@ for (const entry of allEntries) {
 }
 const entries = allEntries.filter((entry) => entry.status === "published");
 function page(entry, lang, section) {
-  const values = { title: entry[lang].title, description: entry[lang].summary || "", date: toDate(entry.updatedAt).toISOString(), lastmod: toDate(entry.updatedAt).toISOString(), url: lang === "en" ? `/${section}/${entry.slug}/` : `/vi/${section}/${entry.slug}/`, slug: entry.slug, type: section, draft: false, tags: entry.tags || [], year: entry.year, role: entry.role, category: entry.category, youtubeUrl: entry.youtubeUrl, soundcloudUrl: entry.soundcloudUrl };
+  const values = { title: entry[lang].title, description: entry[lang].summary || "", date: entry.date ? new Date(entry.date).toISOString() : toDate(entry.updatedAt).toISOString(), lastmod: toDate(entry.updatedAt).toISOString(), url: lang === "en" ? `/${section}/${entry.slug}/` : `/vi/${section}/${entry.slug}/`, slug: entry.slug, type: section, draft: false, tags: entry.tags || [], weight: entry.sortOrder, featureimage: entry.featureimage, externalUrl: entry.externalUrl, medium: entry.medium, year: entry.year, role: entry.role, category: entry.category, youtubeUrl: entry.youtubeUrl, soundcloudUrl: entry.soundcloudUrl };
   const lines = ["---"];
   for (const [key, value] of Object.entries(values)) { const serialized = frontMatterValue(value); if (serialized !== undefined) lines.push(`${key}: ${serialized}`); }
   const body = [entry[lang].body];

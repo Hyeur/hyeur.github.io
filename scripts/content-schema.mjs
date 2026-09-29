@@ -1,5 +1,6 @@
 export const ENTRY_TYPES = Object.freeze({ blog: "blog", portfolio: "portfolio", project: "projects", credit: "credits" });
 const hosts = { youtubeUrl: ["youtube.com", "www.youtube.com", "youtu.be"], soundcloudUrl: ["soundcloud.com", "www.soundcloud.com"] };
+const isDateOnly = (value) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 
 export function validateEntry(entry, id = "(unknown)") {
   const errors = [];
@@ -9,6 +10,7 @@ export function validateEntry(entry, id = "(unknown)") {
   need(Object.hasOwn(ENTRY_TYPES, entry.type), "type must be blog, portfolio, project, or credit");
   need(["draft", "published"].includes(entry.status), "status must be draft or published");
   need(typeof entry.slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.slug), "slug must use lowercase letters, numbers, and hyphens");
+  need(Number.isInteger(entry.revision) && entry.revision >= 1, "revision must be a positive integer");
   for (const lang of ["en", "vi"]) {
     need(entry[lang] && typeof entry[lang] === "object", `${lang} content is required`);
     need(typeof entry[lang]?.title === "string" && entry[lang].title.trim(), `${lang}.title is required`);
@@ -19,6 +21,22 @@ export function validateEntry(entry, id = "(unknown)") {
     try { const url = new URL(entry[key]); need(url.protocol === "https:" && hosts[key].includes(url.hostname), `${key} must be HTTPS on a supported host`); }
     catch { errors.push(`${key} must be a valid URL`); }
   }
+  if (entry.date !== undefined) {
+    need(isDateOnly(entry.date), "date must be a valid YYYY-MM-DD date");
+  } else if (entry.type === "blog") need(false, "date is required for blog entries");
+  if (entry.sortOrder !== undefined) need(Number.isInteger(entry.sortOrder), "sortOrder must be an integer");
+  if (entry.featureimage !== undefined) {
+    const image = entry.featureimage;
+    const localPath = typeof image === "string" && image.startsWith("/") && !image.startsWith("//") && !image.split("/").includes("..");
+    let remoteUrl = false;
+    try { remoteUrl = new URL(image).protocol === "https:"; } catch { /* local path or invalid */ }
+    need(localPath || remoteUrl, "featureimage must be a local site path or HTTPS URL");
+  }
+  if (entry.externalUrl !== undefined) {
+    try { need(new URL(entry.externalUrl).protocol === "https:", "externalUrl must use HTTPS"); }
+    catch { errors.push("externalUrl must be a valid HTTPS URL"); }
+  }
+  if (entry.medium !== undefined) need(typeof entry.medium === "string", "medium must be text");
   for (const key of ["createdAt", "updatedAt"]) {
     try { if (!entry[key]) throw new Error("missing"); toDate(entry[key]); }
     catch { errors.push(`${key} must be a valid date or Firestore timestamp`); }
