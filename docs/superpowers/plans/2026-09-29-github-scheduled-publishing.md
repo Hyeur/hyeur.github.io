@@ -117,11 +117,11 @@
 - Root `npm run build` remains the local export + Hugo + admin build command.
 - Production publishing uses `Hyeur/hyeur.github.io` GitHub Actions with the existing Firebase service-account secret; no Firebase Functions, repository-dispatch token, or Secret Manager GitHub token is needed.
 
-- [ ] **Step 1: Remove obsolete Functions config, source, tests, and callback/revision-verification scripts** after Tasks 1–3 have no imports or workflow references to them.
-- [ ] **Step 2: Update documentation** for Firestore status publishing, normal schedule delay, manual Actions run, public-repository schedule reactivation, deployed-state deletion guard, account setup, and the existing service-account secret.
-- [ ] **Step 3: Run repository searches** for `requestPublish`, `repository_dispatch`, `GITHUB_PUBLISH_TOKEN`, `firebase/functions`, `update-publish-status`, and `verify-publish-revision`; expected: no active Functions publish flow or token setup remains (historical design docs may mention it). Legacy `publishRequest`/`publishedContent` strings may remain only in Firestore Rules to prevent old server-owned fields from being modified.
-- [ ] **Step 4: Run `npm --prefix admin test`, `node --test scripts/release-manifest.test.mjs scripts/publisher-state.test.mjs`, `firebase emulators:exec --only firestore --project demo-portfolio "node --test scripts/firestore-rules.test.mjs"`, exporter verification, Hugo build to `.superpowers/`, admin build to `.superpowers/`, `git diff --check`, and inspect the final Git status.** Expected: all checks pass, public routes and `/admin/` output build, and the pre-existing dirty `public/` HTML plus `params.toml` remain unchanged.
-- [ ] **Step 5: Commit** as `docs: remove cloud functions publishing setup`.
+- [x] **Step 1: Remove obsolete Functions config, source, tests, and callback/revision-verification scripts** after Tasks 1–3 have no imports or workflow references to them.
+- [x] **Step 2: Update documentation** for Firestore status publishing, normal schedule delay, manual Actions run, public-repository schedule reactivation, deployed-state deletion guard, account setup, and the existing service-account secret.
+- [x] **Step 3: Run repository searches** for `requestPublish`, `repository_dispatch`, `GITHUB_PUBLISH_TOKEN`, `firebase/functions`, `update-publish-status`, and `verify-publish-revision`; expected: no active Functions publish flow or token setup remains (historical design docs may mention it). Legacy `publishRequest`/`publishedContent` strings may remain only in Firestore Rules to prevent old server-owned fields from being modified.
+- [x] **Step 4: Run `npm --prefix admin test`, `node --test scripts/release-manifest.test.mjs scripts/publisher-state.test.mjs`, `firebase emulators:exec --only firestore --project demo-portfolio "node --test scripts/firestore-rules.test.mjs"`, exporter verification, Hugo build to `.superpowers/`, admin build to `.superpowers/`, `git diff --check`, and inspect the final Git status.** Expected: all checks pass, public routes and `/admin/` output build, and the pre-existing dirty `public/` HTML plus `params.toml` remain unchanged.
+- [x] **Step 5: Commit** as `docs: remove cloud functions publishing setup`.
 
 ## Release completion
 

@@ -1,26 +1,25 @@
-# Nguyen Ngoc Hieu - Sound Design Portfolio
+# Nguyen Ngoc Hieu — Sound Design Portfolio
 
-Public static portfolio: https://sounddesignportfolio.web.app/
+Public portfolio and blog: https://sounddesignportfolio.web.app/
 
-## Local preview
+## Local preview and build
 
-Run `npm ci` and `npx hugo server` from the repository root, then open the local URL printed by Hugo. To build the static site, use `npm run build:site`.
+Install dependencies with `npm ci` and `npm ci --prefix admin`. Run `npm run build` for a complete local build; generated files go under the ignored `.superpowers/build/` folder so the checked-in `public/` directory is left alone. Run `npm run build:site -- --destination .superpowers/preview` for a Hugo-only build, or `npm --prefix admin run build -- --outDir ../.superpowers/admin-preview` for the editor. The live Hosting workflow uses `public/` as its deployment output.
 
 ## Site structure
 
-- `content/` contains the English and Vietnamese homepage, portfolio, reel, credits, blog, biography, and contact content.
-- `layouts/` contains the portfolio-first Hugo homepage and safe media embeds.
-- `audio/` and `video/` are copied to the generated site while existing samples are migrated to SoundCloud and YouTube embeds.
-- `themes/blowfish/` provides the shared theme and article layouts.
+- `content/` contains the English and Vietnamese pages and hand-authored content.
+- `layouts/` contains the portfolio-first homepage and safe media embeds.
+- `themes/blowfish/` provides the Hugo theme and article layouts.
+- `admin/` contains the private owner editor. Firestore is its content source; the public site is a static Hugo build.
 
-## Updating portfolio content
+## Editing and publishing
 
-1. Sign in at `/admin/` using the Firebase Authentication owner account. Firestore access requires the `admin: true` custom claim; see [docs/content-model.md](docs/content-model.md) for owner and deployment setup.
-2. Create an English and Vietnamese entry and save it as a draft. Add approved YouTube or SoundCloud share URLs.
-3. Save a draft or use Publish/Unpublish. The callable function dispatches a build only to `Hyeur/hyeur.github.io`; status and workflow links appear on the entry. Media URLs must use YouTube or SoundCloud. Unlisted and private-share media links are visible to anyone who can access the public page.
-4. Before first use, configure the owner custom claim and `OWNER_UID`, store `GITHUB_PUBLISH_TOKEN` in Firebase Secret Manager, and configure the `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` GitHub Actions secret as documented in [docs/content-model.md](docs/content-model.md). Firebase Hosting serves the generated `public/` directory.
-5. Use generic, external-audience wording and follow [docs/maintenance-plan.md](docs/maintenance-plan.md) before publishing.
+1. Sign in at `/admin/` with the Firebase Authentication owner account. The account needs the `admin: true` custom claim; see [docs/content-model.md](docs/content-model.md) for setup.
+2. Create an English and Vietnamese entry, save it as a draft, and add approved YouTube or SoundCloud links where needed.
+3. Use **Publish** or **Unpublish** to change the Firestore status. GitHub Actions checks for updates on its ten-minute schedule and publishes the next successful build. A push to `main` also starts a build, and you can start one from the repository’s Actions tab. See [docs/content-model.md](docs/content-model.md) for schedule limits and the delete-after-unpublish behavior.
+4. Use generic, external-audience wording and follow [docs/maintenance-plan.md](docs/maintenance-plan.md) before publishing. Unlisted or private-share media links are visible to anyone who can access the public page.
 
-## Deployment
+## Deployment services
 
-Publishing from `/admin/` is the production deployment path. GitHub Actions exports published Firestore entries, builds Hugo and the editor, verifies the requested revision, and deploys Firebase Hosting. A Hosting deploy runs only after every build and validation step succeeds. Changes to the repository alone do not trigger a production deploy; use a publish or unpublish action in the editor.
+Firebase Hosting serves the Hugo site and `/admin/`. GitHub Actions reads published Firestore entries, builds Hugo and the editor, and deploys Hosting using the existing `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` repository secret. Cloud Functions and a GitHub publishing token are not used. The production workflow and service-account setup are documented in [docs/content-model.md](docs/content-model.md).
