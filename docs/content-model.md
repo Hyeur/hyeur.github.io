@@ -6,7 +6,7 @@ The owner editor at `/admin/` reads and writes Firestore directly. The exporter 
 
 ## Owner account setup
 
-Firestore permits access only to an authenticated user with the `admin: true` custom claim. Enable Email/Password sign-in in Firebase Authentication and grant the claim to the owner's existing Auth UID with `GOOGLE_APPLICATION_CREDENTIALS=... OWNER_UID=... npm run set:owner-claim`. The Admin SDK script preserves other claims. The owner must sign out and sign back in to refresh the ID token. Access fails closed until the claim is present.
+The custom editor signs in with Email/Password, configured in `firebase.json` and deployed with `firebase deploy --only auth --project sounddesignportfolio`. Create the one owner account in Firebase Authentication, then grant its Auth UID the `admin: true` custom claim with `GOOGLE_APPLICATION_CREDENTIALS=... OWNER_UID=... npm run set:owner-claim`. The Admin SDK script preserves other claims. The owner must sign out and sign back in to refresh the ID token. Access fails closed until the claim is present; other signed-in accounts cannot read or change entries.
 
 ## Scheduled publishing
 
@@ -18,6 +18,6 @@ Unpublishing changes the entry to a draft immediately. The Firestore rules still
 
 ## Credentials and deployment
 
-The GitHub workflow uses the service-account JSON stored as `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` in `Hyeur/hyeur.github.io` → Settings → Secrets and variables → Actions. That service account needs permission to read/write the Firestore publisher state and to deploy Firebase Hosting for `sounddesignportfolio`. Keep the JSON key in GitHub Secrets; never commit it or include it in the editor bundle. No Cloud Functions, Secret Manager GitHub token, repository-dispatch token, or Blaze-plan upgrade is needed for publishing.
+The GitHub workflow uses the service-account JSON stored as `FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO` in `Hyeur/hyeur.github.io` → Settings → Secrets and variables → Actions. That service account needs `roles/datastore.user` for Firestore data and permission to deploy Firebase Hosting for `sounddesignportfolio`. Keep the JSON key in GitHub Secrets; never commit it or include it in the editor bundle. No Cloud Functions, Secret Manager GitHub token, repository-dispatch token, or Blaze-plan upgrade is needed for publishing.
 
 Deploy the restrictive rules and indexes with `firebase deploy --only firestore:rules,firestore:indexes --project sounddesignportfolio --non-interactive`. Hosting publishes through the GitHub Actions workflow. The Firebase Admin SDK uses Application Default Credentials or `GOOGLE_APPLICATION_CREDENTIALS`; set `FIREBASE_PROJECT_ID` if using a different project. For local emulator exports, set `FIRESTORE_EMULATOR_HOST`. Run checks with `npm --prefix admin test`, `node --test scripts/release-manifest.test.mjs scripts/publisher-state.test.mjs`, and `firebase emulators:exec --only firestore --project demo-portfolio "node --test scripts/firestore-rules.test.mjs"`.

@@ -5,6 +5,11 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "auth": {
+    "providers": {
+      "emailPassword": true
+    }
+  },
   "emulators": {
     "firestore": { "port": 8080 },
     "ui": { "enabled": false }
