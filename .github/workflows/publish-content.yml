@@ -26,8 +26,6 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SOUNDDESIGNPORTFOLIO }}'
-      - name: Identify Firestore publisher service account
-        run: node -e "console.log('Publisher service account:', JSON.parse(require('node:fs').readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'utf8')).client_email)"
       - run: npm ci
       - run: npm ci --prefix admin
       - name: Install Firebase CLI
