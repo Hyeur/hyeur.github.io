@@ -8,6 +8,11 @@ test("production publishing only checks out and deploys main", () => {
   assert.match(workflow, /^\s{4}if: github\.ref == ['"]refs\/heads\/main['"]$/m);
 });
 
+test("checkout includes Blowfish and the build fails if its layout is missing", () => {
+  assert.match(workflow, /uses: actions\/checkout@v4\s+with:\s+submodules: recursive/);
+  assert.match(workflow, /test -f themes\/blowfish\/layouts\/_default\/baseof\.html/);
+});
+
 test("the deletion lease wraps export, build, deploy, and successful state recording", () => {
   const steps = [
     "name: Acquire publisher deletion lock",
