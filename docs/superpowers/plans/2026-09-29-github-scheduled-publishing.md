@@ -47,11 +47,11 @@
 - `releaseChanged(manifest, previousFingerprint)` returns `true` only when the fingerprint differs.
 - The exporter writes the manifest to `PUBLISH_MANIFEST_PATH`, defaulting to ignored `.publish-manifest.json` for local use.
 
-- [ ] **Step 1: Write failing tests** for draft exclusion, empty and mixed records, deterministic ordering, content changes, commit-SHA changes, and deployed entry ID/revision values.
-- [ ] **Step 2: Run `node --test scripts/release-manifest.test.mjs`** and confirm the tests fail because the manifest API is missing.
-- [ ] **Step 3: Implement the manifest module** using SHA-256 over the commit SHA and sorted path/content pairs; record only published entry IDs and revisions.
-- [ ] **Step 4: Update the exporter** to use the published-status filter, ignore legacy `publishRequest`/`publishedContent` fields, and write the manifest after complete validation and page generation.
-- [ ] **Step 5: Add `.publish-manifest.json` to `.gitignore`; run `node --test scripts/release-manifest.test.mjs` and `npm run export:content`.** Expected: tests pass, drafts are absent, and the exporter reports the published-entry count without changing `public/`.
+- [x] **Step 1: Write failing tests** for draft exclusion, empty and mixed records, deterministic ordering, content changes, commit-SHA changes, and deployed entry ID/revision values.
+- [x] **Step 2: Run `node --test scripts/release-manifest.test.mjs`** and confirm the tests fail because the manifest API is missing.
+- [x] **Step 3: Implement the manifest module** using SHA-256 over the commit SHA and sorted path/content pairs; record only published entry IDs and revisions.
+- [x] **Step 4: Update the exporter** to use the published-status filter, ignore legacy `publishRequest`/`publishedContent` fields, and write the manifest after complete validation and page generation.
+- [x] **Step 5: Add `.publish-manifest.json` to `.gitignore`; run `node --test scripts/release-manifest.test.mjs` and `npm run export:content`.** Expected: tests pass, drafts are absent, and the exporter reports the published-entry count without changing `public/`.
 - [ ] **Step 6: Commit** as `refactor: export published content without function state`.
 
 ### Task 2: Allow owner publication and guard deletion with deployed state

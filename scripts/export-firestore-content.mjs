@@ -1,36 +1,22 @@
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENTRY_TYPES, frontMatterValue, toDate, validateEntry } from "./content-schema.mjs";
-import publishState from "../functions/src/publish-state.cjs";
+import { createReleaseManifest, selectPublishedEntries } from "./release-manifest.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const managedRoot = path.join(root, "content");
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || "sounddesignportfolio";
-const activeRequestId = process.env.PUBLISH_REQUEST_ID;
 if (process.env.FIRESTORE_EMULATOR_HOST) initializeApp({ projectId });
 else initializeApp({ credential: applicationDefault(), projectId });
 const snapshot = await getFirestore().collection("entries").get();
 const allEntries = snapshot.docs.map((doc) => {
-  const entry = validateEntry(doc.data(), doc.id);
-  if (entry.publishedContent) validateEntry(entry.publishedContent, `${doc.id}.publishedContent`);
-  return entry;
+  return { ...validateEntry(doc.data(), doc.id), id: doc.id };
 });
-const seen = new Set();
-for (const entry of allEntries) {
-  const key = `${entry.type}/${entry.slug}`;
-  if (seen.has(key)) throw new Error(`Duplicate entry slug: ${key}`);
-  seen.add(key);
-  const section = ENTRY_TYPES[entry.type];
-  try {
-    if ((await readdir(path.join(managedRoot, section))).includes(entry.slug)) throw new Error(`Published entry ${key} collides with an existing Hugo content bundle.`);
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-  }
-}
-const entries = allEntries.map((entry) => publishState.entryForExport(entry, activeRequestId)).filter(Boolean);
+const entries = selectPublishedEntries(allEntries);
 const exportedSlugs = new Set();
 for (const entry of entries) {
   const key = `${entry.type}/${entry.slug}`;
@@ -65,4 +51,12 @@ for (const folder of folders) {
   for (const filename of await readdir(folder)) if (/^[a-z0-9-]+\.(en|vi)\.md$/.test(filename) && !desired.has(filename)) await rm(path.join(folder, filename));
 }
 for (const item of outputs) await writeFile(path.join(item.folder, item.filename), item.data, "utf8");
+const manifestPath = process.env.PUBLISH_MANIFEST_PATH || path.join(root, ".publish-manifest.json");
+const manifest = createReleaseManifest({
+  commitSha: process.env.GITHUB_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
+  entries,
+  files: outputs.map((item) => ({ path: path.relative(root, path.join(item.folder, item.filename)), content: item.data })),
+});
+await mkdir(path.dirname(path.resolve(manifestPath)), { recursive: true });
+await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 console.log(`Exported ${entries.length} published entries (${outputs.length} language pages) from ${projectId}.`);

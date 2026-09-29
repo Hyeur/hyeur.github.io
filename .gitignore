@@ -12,6 +12,7 @@ firebase-debug.*.log*
 
 # Agent execution scratch
 .superpowers/
+.publish-manifest.json
 
 # Firebase config
 
