@@ -5,18 +5,24 @@ service cloud.firestore {
     function isOwner() {
       return request.auth != null && request.auth.token.admin == true;
     }
-    function entryIsNotPublishing() {
-      return !resource.data.keys().hasAny(["publishRequest"]) || resource.data.publishRequest.status != "queued";
-    }
-    function entryHasFailedUnpublish() {
-      return resource.data.keys().hasAny(["publishRequest"]) && resource.data.publishRequest.status == "failed" && resource.data.publishRequest.action == "unpublish";
+    function isInLastDeployment(entryId) {
+      let publisherState = /databases/$(database)/documents/_publisherState/current;
+      return exists(publisherState)
+        && get(publisherState).data.get("publishedEntryRevisions", {}).keys().hasAny([entryId]);
     }
 
     match /entries/{entryId} {
       allow read: if isOwner();
-      allow create: if isOwner() && request.resource.data.status == "draft" && !request.resource.data.keys().hasAny(["publishRequest", "publishedContent"]);
-      allow update: if isOwner() && entryIsNotPublishing() && request.resource.data.status == resource.data.status && request.resource.data.get("publishRequest", null) == resource.data.get("publishRequest", null) && request.resource.data.get("publishedContent", null) == resource.data.get("publishedContent", null);
-      allow delete: if isOwner() && resource.data.status == "draft" && entryIsNotPublishing() && !entryHasFailedUnpublish();
+      allow create: if isOwner()
+        && request.resource.data.status == "draft"
+        && !request.resource.data.keys().hasAny(["publishRequest", "publishedContent"]);
+      allow update: if isOwner()
+        && request.resource.data.status in ["draft", "published"]
+        && request.resource.data.get("publishRequest", null) == resource.data.get("publishRequest", null)
+        && request.resource.data.get("publishedContent", null) == resource.data.get("publishedContent", null);
+      allow delete: if isOwner()
+        && resource.data.status == "draft"
+        && !isInLastDeployment(entryId);
     }
     match /{document=**} {
       // This rule allows anyone with your database reference to view, edit,

@@ -71,12 +71,12 @@
 - Publisher state is `_publisherState/current`, with `fingerprint` and `publishedEntryRevisions` fields. The browser has no direct access to this document.
 - `isInLastDeployment(entryId)` in Firestore Rules checks the publisher-state map using `exists()`/`get()`; deletion is allowed only for owner-owned draft entries absent from the last deployed map.
 
-- [ ] **Step 1: Add emulator tests** for signed-out, non-owner, and owner reads/writes; owner draft creation; draft-to-published and published-to-draft transitions; publisher-state denial; and delete denial until the deployed map no longer contains the entry.
-- [ ] **Step 2: Run the rules tests** against the Firestore Emulator and confirm they fail against the current rules.
-- [ ] **Step 3: Update Firestore Rules** to allow only owner status changes, deny all browser publisher-state access, preserve legacy server-owned fields if present, and reject deletion while the last successful deployment still includes the entry.
-- [ ] **Step 4: Replace callable publication in the editor** with direct `setEntryStatus` updates; remove Firebase Functions SDK initialization, queued-request locks, retry controls, and callback status UI. Show the scheduled-sync explanation and a link to GitHub Actions.
-- [ ] **Step 5: Update deletion UX** to explain that a recently unpublished entry can be deleted after a successful sync; preserve Firestore's deployed-map rule as the authority when a user tries early.
-- [ ] **Step 6: Run emulator rule tests and `npm --prefix admin test`.** Expected: unauthorized requests and premature deletion are denied; the owner can publish, unpublish, and edit records; admin tests pass.
+- [x] **Step 1: Add emulator tests** for signed-out, non-owner, and owner reads/writes; owner draft creation; draft-to-published and published-to-draft transitions; publisher-state denial; and delete denial until the deployed map no longer contains the entry.
+- [x] **Step 2: Run the rules tests** against the Firestore Emulator and confirm they fail against the current rules.
+- [x] **Step 3: Update Firestore Rules** to allow only owner status changes, deny all browser publisher-state access, preserve legacy server-owned fields if present, and reject deletion while the last successful deployment still includes the entry.
+- [x] **Step 4: Replace callable publication in the editor** with direct `setEntryStatus` updates; remove Firebase Functions SDK initialization, queued-request locks, retry controls, and callback status UI. Show the scheduled-sync explanation and a link to GitHub Actions.
+- [x] **Step 5: Update deletion UX** to explain that a recently unpublished entry can be deleted after a successful sync; preserve Firestore's deployed-map rule as the authority when a user tries early.
+- [x] **Step 6: Run emulator rule tests and `npm --prefix admin test`.** Expected: unauthorized requests and premature deletion are denied; the owner can publish, unpublish, and edit records; admin tests pass.
 - [ ] **Step 7: Commit** as `feat: publish entries through owner firestore status`.
 
 ### Task 3: Add the scheduled, manual, and source-push publisher

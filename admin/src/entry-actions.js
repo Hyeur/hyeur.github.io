@@ -1,5 +1,11 @@
-/** @param {{ status: string, publishRequest?: { status?: string } }} entry */
+/** @param {{ status: string }} entry */
 export function canDeleteEntry(entry) {
-  const pendingUnpublish = entry.publishRequest?.action === "unpublish" && entry.publishRequest.status !== "succeeded";
-  return entry.status === "draft" && entry.publishRequest?.status !== "queued" && !pendingUnpublish;
+  return entry.status === "draft";
+}
+
+/** @param {{ status: string }} entry */
+export function deleteHelpText(entry) {
+  return entry.status === "published"
+    ? "Unpublish this entry and wait for a successful GitHub Actions sync before deleting it."
+    : "If this draft is still in the live site, wait for a successful GitHub Actions sync before deleting it.";
 }

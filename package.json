@@ -7,6 +7,7 @@
     "set:owner-claim": "node scripts/assign-owner-claim.mjs"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "hugo-extended": "^0.166.0"
   },
   "dependencies": {
