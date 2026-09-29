@@ -4,14 +4,20 @@ import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ENTRY_TYPES, frontMatterValue, toDate, validateEntry } from "./content-schema.mjs";
+import publishState from "../functions/src/publish-state.cjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const managedRoot = path.join(root, "content");
 const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || "sounddesignportfolio";
+const activeRequestId = process.env.PUBLISH_REQUEST_ID;
 if (process.env.FIRESTORE_EMULATOR_HOST) initializeApp({ projectId });
 else initializeApp({ credential: applicationDefault(), projectId });
 const snapshot = await getFirestore().collection("entries").get();
-const allEntries = snapshot.docs.map((doc) => validateEntry(doc.data(), doc.id));
+const allEntries = snapshot.docs.map((doc) => {
+  const entry = validateEntry(doc.data(), doc.id);
+  if (entry.publishedContent) validateEntry(entry.publishedContent, `${doc.id}.publishedContent`);
+  return entry;
+});
 const seen = new Set();
 for (const entry of allEntries) {
   const key = `${entry.type}/${entry.slug}`;
@@ -24,7 +30,19 @@ for (const entry of allEntries) {
     if (error.code !== "ENOENT") throw error;
   }
 }
-const entries = allEntries.filter((entry) => entry.status === "published");
+const entries = allEntries.map((entry) => publishState.entryForExport(entry, activeRequestId)).filter(Boolean);
+const exportedSlugs = new Set();
+for (const entry of entries) {
+  const key = `${entry.type}/${entry.slug}`;
+  if (exportedSlugs.has(key)) throw new Error(`Duplicate published entry slug: ${key}`);
+  exportedSlugs.add(key);
+  const section = ENTRY_TYPES[entry.type];
+  try {
+    if ((await readdir(path.join(managedRoot, section))).includes(entry.slug)) throw new Error(`Published entry ${key} collides with an existing Hugo content bundle.`);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
 function page(entry, lang, section) {
   const values = { title: entry[lang].title, description: entry[lang].summary || "", date: entry.date ? new Date(entry.date).toISOString() : toDate(entry.updatedAt).toISOString(), lastmod: toDate(entry.updatedAt).toISOString(), url: lang === "en" ? `/${section}/${entry.slug}/` : `/vi/${section}/${entry.slug}/`, slug: entry.slug, type: section, draft: false, tags: entry.tags || [], weight: entry.sortOrder, featureimage: entry.featureimage, externalUrl: entry.externalUrl, medium: entry.medium, year: entry.year, role: entry.role, category: entry.category, youtubeUrl: entry.youtubeUrl, soundcloudUrl: entry.soundcloudUrl };
   const lines = ["---"];

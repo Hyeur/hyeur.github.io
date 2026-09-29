@@ -8,12 +8,15 @@ service cloud.firestore {
     function entryIsNotPublishing() {
       return !resource.data.keys().hasAny(["publishRequest"]) || resource.data.publishRequest.status != "queued";
     }
+    function entryHasFailedUnpublish() {
+      return resource.data.keys().hasAny(["publishRequest"]) && resource.data.publishRequest.status == "failed" && resource.data.publishRequest.action == "unpublish";
+    }
 
     match /entries/{entryId} {
       allow read: if isOwner();
-      allow create: if isOwner() && request.resource.data.status == "draft" && !request.resource.data.keys().hasAny(["publishRequest"]);
-      allow update: if isOwner() && entryIsNotPublishing() && request.resource.data.status == resource.data.status;
-      allow delete: if isOwner() && entryIsNotPublishing();
+      allow create: if isOwner() && request.resource.data.status == "draft" && !request.resource.data.keys().hasAny(["publishRequest", "publishedContent"]);
+      allow update: if isOwner() && entryIsNotPublishing() && request.resource.data.status == resource.data.status && request.resource.data.get("publishRequest", null) == resource.data.get("publishRequest", null) && request.resource.data.get("publishedContent", null) == resource.data.get("publishedContent", null);
+      allow delete: if isOwner() && resource.data.status == "draft" && entryIsNotPublishing() && !entryHasFailedUnpublish();
     }
     match /{document=**} {
       // This rule allows anyone with your database reference to view, edit,

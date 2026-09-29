@@ -28,6 +28,7 @@ jobs:
         run: npm run export:content
         env:
           FIREBASE_PROJECT_ID: sounddesignportfolio
+          PUBLISH_REQUEST_ID: ${{ github.event.client_payload.requestId }}
       - name: Build Hugo site
         run: npm run build:site
       - name: Build custom editor

@@ -1,5 +1,6 @@
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import publishState from "../functions/src/publish-state.cjs";
 
 const [entryId, jobResult, revisionValue, requestId, runUrl = ""] = process.argv.slice(2);
 const revision = Number(revisionValue);
@@ -22,7 +23,12 @@ await db.runTransaction(async (transaction) => {
       "publishRequest.completedAt": FieldValue.serverTimestamp(),
       "publishRequest.runUrl": runUrl,
     };
-    if (status === "succeeded") update["publishRequest.deployedRevision"] = revision;
+    if (status === "succeeded") {
+      update["publishRequest.deployedRevision"] = revision;
+      if (entry.status === "published") update.publishedContent = publishState.publishedSnapshot(entry);
+    }
+    const restoreStatus = publishState.restoreStatusAfterFailure(entry.publishRequest, status);
+    if (restoreStatus) update.status = restoreStatus;
     transaction.update(ref, update);
   }
   if (lock?.requestId === requestId) transaction.delete(lockRef);

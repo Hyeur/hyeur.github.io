@@ -32,14 +32,18 @@ exports.requestPublish = onCall({ region: "asia-southeast1", secrets: [githubPub
     }
     const revision = entry.revision;
     const lock = lockSnapshot.exists ? lockSnapshot.data() : null;
+    const previousRequest = entry.publishRequest;
     const leaseActive = lock?.status === "queued" && lock.expiresAt?.toMillis?.() > Date.now();
     if (leaseActive) {
-      if (lock.entryId === entryId && lock.revision === revision && lock.action === action && lock.requestId === entry.publishRequest?.requestId) {
+      if (lock.entryId === entryId && lock.revision === revision && lock.action === action && lock.requestId === previousRequest?.requestId) {
         return { queued: false, requestId: lock.requestId };
       }
       throw new HttpsError("failed-precondition", "Another site build is already running. Try again when it finishes.");
     }
-    const previousRequest = entry.publishRequest;
+    const retryingQueuedRequest = previousRequest?.status === "queued" && previousRequest.action === action && previousRequest.revision === revision;
+    const previousStatus = retryingQueuedRequest
+      ? previousRequest.previousStatus || (action === "unpublish" ? "published" : "draft")
+      : entry.status;
     const targetStatus = action === "publish" ? "published" : "draft";
     if (previousRequest?.status === "succeeded" && previousRequest.action === action && previousRequest.revision === revision && previousRequest.deployedRevision === revision && entry.status === targetStatus) {
       return { queued: false, succeeded: true, requestId: previousRequest.requestId };
@@ -48,7 +52,7 @@ exports.requestPublish = onCall({ region: "asia-southeast1", secrets: [githubPub
     transaction.update(ref, {
       status: targetStatus,
       updatedAt: FieldValue.serverTimestamp(),
-      publishRequest: { status: "queued", action, revision, requestId, requestedAt: FieldValue.serverTimestamp() },
+      publishRequest: { status: "queued", action, revision, previousStatus, requestId, requestedAt: FieldValue.serverTimestamp() },
     });
     transaction.set(lockRef, { status: "queued", entryId, action, revision, requestId, expiresAt });
     return { queued: true, requestId };
